@@ -11,6 +11,9 @@ class AI {
 
         // Sample AI (Move randomly and legally)
         val legalMoves = board.getLegalMoves(TileType.Us) // get legal moves for us
-        return legalMoves.random() // select one at random
+        val move = legalMoves.random()
+        return move
+
+        //return move // select one at random
     }
 }

@@ -8,11 +8,10 @@ package app
  */
 
 
-fun Array<Array<Int>>.toTileTypes(): Array<Array<TileType>> {
-    val x = this.size
-    val y = this[0].size
-    return Array(x) { Array(y) {
-        when (it) {
+fun toTileTypes(array: Array<Array<Int>>): Array<Array<TileType>> {
+    // reverse indices
+    return Array(array.size) { x -> Array(array[0].size) { y ->
+        when (array[y][x]) {
             1 -> TileType.Us
             2 -> TileType.Them
             else -> TileType.Empty
@@ -52,11 +51,7 @@ class Board(val contents: Array<Array<TileType>>) {
     private val centerFourPositions = listOf(Pair(3, 3), Pair(4, 3), Pair(4, 4), Pair(3, 4))
 
     fun inbounds(value: Int): Boolean {
-        return when {
-            value >= 8 -> false
-            value <= 0 -> false
-            else -> true
-        }
+        return (value in 0 until 8)
     }
 
     fun getTileAt(pos: Pair<Int, Int>): TileType {
@@ -75,21 +70,28 @@ class Board(val contents: Array<Array<TileType>>) {
         if (opponent != null) {
             // find first friendly stone in each direction
             for (direction in Direction.values()) {
+                var first = true
                 var focus = Pair(x, y)
-                var foundEndpoint = false
+                var foundEnd = false
                 val path = mutableListOf<Pair<Int, Int>>()
-                do {
+
+                while (getTileAt(focus) == opponent || first) {
+                    first = false
+
                     focus = direction.from(focus)
+
+                    if (!inbounds(focus.first) || !inbounds(focus.second)) break
+
                     if (getTileAt(focus) == player) {
-                        foundEndpoint = true
+                        foundEnd = true
                         break
                     }
-                    else {
-                        path.add(focus)
+                    else if (getTileAt(focus) == opponent) {
+                        path.add(focus.copy())
                     }
-                } while (inbounds(focus.first) && inbounds(focus.second) && getTileAt(focus) == opponent)
+                }
 
-                if (foundEndpoint) flippedTiles.addAll(path)
+                if (foundEnd) flippedTiles.addAll(path)
             }
         }
 
@@ -97,8 +99,12 @@ class Board(val contents: Array<Array<TileType>>) {
     }
 
     fun checkLegal(player: TileType, move: Pair<Int, Int>): Boolean {
-        val flippedTiles = getFlippedTiles(player, move.first, move.second)
-        return flippedTiles.isNotEmpty()
+        if (getTileAt(move) == TileType.Empty) {
+            val flippedTiles = getFlippedTiles(player, move.first, move.second)
+            return flippedTiles.isNotEmpty()
+        } else {
+            return false
+        }
     }
 
     fun getLegalMoves(player: TileType): List<Pair<Int, Int>> {

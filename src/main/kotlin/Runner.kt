@@ -14,14 +14,16 @@ import kotlin.concurrent.thread
 
 class Runner(val ai: AI, val apiURL: String, val apiKey: String) {
     val api = API(apiURL, apiKey)
-    val refreshRate: Long = 500
+    val refreshRate: Long = 1000
 
     fun waitForTurn() {
-        while (!api.getMoveNeeded()) Thread.sleep(refreshRate, 0)
+        while (!api.getMoveNeeded()) {
+            Thread.sleep(refreshRate, 0)
+        }
     }
 
     fun doMove() {
-        val move = ai.doMove(Board(api.getBoard().board.toTileTypes()))
+        val move = ai.doMove(Board(toTileTypes(api.getBoard().board)))
         val resp = api.doMove(move)
         if (resp.error != null) println(resp.error)
     }
@@ -48,7 +50,7 @@ class Runner(val ai: AI, val apiURL: String, val apiKey: String) {
                         run.waitForTurn()
                         println("(Thread $i) Starting Turn.")
                         run.doMove()
-                        println("(Thread $i)Ending Turn.")
+                        println("(Thread $i) Ending Turn.")
                     }
                 }
             }

@@ -6,9 +6,9 @@ import com.google.gson.Gson
 
 data class PostResponse(val error: String?)
 
-data class BoardResponse(val board: Array<Array<Int>>)
+data class BoardResponse(val error: String?, val board: Array<Array<Int>>)
 
-data class MoveNeededResponse(val needed: Boolean)
+data class MoveNeededResponse(val error: String?, val needed: Boolean)
 
 class API(val url: String, val key: String) {
     val gson = Gson()
@@ -38,7 +38,7 @@ class API(val url: String, val key: String) {
     // POST /api/move
     fun doMove(move: Pair<Int, Int>): PostResponse {
         val (_, response, _) = "${url}/api/move".httpPost(
-            listOf(Pair("key", key), Pair("move", move))
+            listOf(Pair("key", key), Pair("x", move.first), Pair("y", move.second))
         ).responseString()
 
         if (response.statusCode != 200) System.err.println("Error sending move")
