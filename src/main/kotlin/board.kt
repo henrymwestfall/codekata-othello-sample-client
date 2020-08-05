@@ -13,7 +13,7 @@ fun toTileTypes(array: Array<Array<Int>>): Array<Array<TileType>> {
     return Array(array.size) { x -> Array(array[0].size) { y ->
         when (array[y][x]) {
             1 -> TileType.Us
-            2 -> TileType.Them
+            -1 -> TileType.Them
             else -> TileType.Empty
         }
     } }
@@ -22,7 +22,7 @@ fun toTileTypes(array: Array<Array<Int>>): Array<Array<TileType>> {
 enum class TileType(val type: Int) {
     Empty(0),
     Us(1),
-    Them(2)
+    Them(-1)
 }
 
 enum class Direction(val dx: Int, val dy: Int) {
@@ -36,7 +36,7 @@ enum class Direction(val dx: Int, val dy: Int) {
     NorthEast(-1, -1),
     NorthWest(1, -1),
     SouthEast(-1, 1),
-    SouthWest(1, -1);
+    SouthWest(1, 1);
 
     fun from(point: Pair<Int, Int>): Pair<Int, Int> {
         val x = point.first + this.dx
@@ -112,7 +112,9 @@ class Board(val contents: Array<Array<TileType>>) {
         contents.forEachIndexed { x, col ->
             col.forEachIndexed { y, _ ->
                 val move = Pair(x, y)
-                if (checkLegal(player, move)) moves.add(move)
+                if (checkLegal(player, move)) {
+                    moves.add(move)
+                }
             }
         }
 

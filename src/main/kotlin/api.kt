@@ -6,7 +6,7 @@ import com.google.gson.Gson
 
 data class PostResponse(val error: String?)
 
-data class BoardResponse(val error: String?, val board: Array<Array<Int>>)
+data class BoardResponse(val error: String?, val boards: Array<Array<Array<Int>>>)
 
 data class MoveNeededResponse(val error: String?, val needed: Boolean)
 
@@ -15,9 +15,7 @@ class API(val url: String, val key: String) {
 
     // GET /api/board
     fun getBoard(): BoardResponse {
-        val (_, response, _) = "${url}/api/board".httpGet(
-            listOf(Pair("key", key))
-        ).responseString()
+        val (_, response, _) = "${url}/boards/$key".httpGet().responseString()
 
         if (response.statusCode != 200) System.err.println("Error fetching board")
 
@@ -26,9 +24,7 @@ class API(val url: String, val key: String) {
 
     // GET /api/move_needed
     fun getMoveNeeded(): Boolean {
-        val (_, response, _) = "${url}/api/move_needed".httpGet(
-            listOf(Pair("key", key))
-        ).responseString()
+        val (_, response, _) = "${url}/move_needed/$key".httpGet().responseString()
 
         if (response.statusCode != 200) System.err.println("Error checking for needed move")
 
@@ -37,9 +33,9 @@ class API(val url: String, val key: String) {
 
     // POST /api/move
     fun doMove(move: Pair<Int, Int>): PostResponse {
-        val (_, response, _) = "${url}/api/move".httpPost(
-            listOf(Pair("key", key), Pair("x", move.first), Pair("y", move.second))
-        ).responseString()
+        val x = move.first
+        val y = move.second
+        val (_, response, _) = "${url}/move/$key/$x/$y".httpPost().responseString()
 
         if (response.statusCode != 200) System.err.println("Error sending move")
 
@@ -48,9 +44,7 @@ class API(val url: String, val key: String) {
 
     // POST /api/set_name
     fun setName(name: String): PostResponse {
-        val (_, response, _) = "${url}/api/set_name".httpPost(
-            listOf(Pair("key", key), Pair("newName", name))
-        ).responseString()
+        val (_, response, _) = "${url}/set_name/$key/$name".httpPost().responseString()
 
         if (response.statusCode != 200) System.err.println("Error setting name")
 
